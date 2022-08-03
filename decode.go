@@ -529,12 +529,12 @@ func (d *decoder) value(v interface{}) error {
 		return &InvalidUnmarshalError{"cbor: Unmarshal(nil " + rv.Type().String() + ")"}
 	}
 
-	off := d.off // Save offset before data validation
-	err := d.valid()
-	d.off = off // Restore offset
-	if err != nil {
-		return err
-	}
+	//off := d.off // Save offset before data validation
+	//err := d.valid()
+	//d.off = off // Restore offset
+	//if err != nil {
+	//	return err
+	//}
 
 	rv = rv.Elem()
 	return d.parseToValue(rv, getTypeInfo(rv.Type()))
