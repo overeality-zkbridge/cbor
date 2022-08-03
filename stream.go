@@ -35,11 +35,7 @@ func (dec *Decoder) Decode(v interface{}) error {
 
 	dec.off += dec.d.off
 	dec.bytesRead += dec.d.off
-
-	if dec.off >= len(dec.buf) {
-		return nil
-	}
-	return dec.Decode(v)
+	return nil
 }
 
 // NumBytesRead returns the number of bytes read.
