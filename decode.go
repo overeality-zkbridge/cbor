@@ -508,7 +508,9 @@ func (dm *decMode) Valid(data []byte) error {
 
 // NewDecoder returns a new decoder that reads from r using dm DecMode.
 func (dm *decMode) NewDecoder(r io.Reader) *Decoder {
-	return &Decoder{r: r, d: decoder{dm: dm}}
+	d := &Decoder{r: r, d: decoder{dm: dm}}
+	d.readAll()
+	return d
 }
 
 type decoder struct {

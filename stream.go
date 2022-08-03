@@ -26,11 +26,6 @@ func NewDecoder(r io.Reader) *Decoder {
 
 // Decode reads CBOR value and decodes it into the value pointed to by v.
 func (dec *Decoder) Decode(v interface{}) error {
-	if len(dec.buf) == 0 {
-		if n, err := dec.readAll(); n == 0 {
-			return err
-		}
-	}
 
 	dec.d.reset(dec.buf[dec.off:])
 	err := dec.d.value(v)
@@ -73,7 +68,7 @@ func (dec *Decoder) read() (int, error) {
 }
 
 func (dec *Decoder) readAll() (int, error) {
-	b := make([]byte, 0, 1<<20)
+	b := make([]byte, 0, 10<<20)
 	for {
 		if len(b) == cap(b) {
 			// Add more capacity (let append pick how much).
