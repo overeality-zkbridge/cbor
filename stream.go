@@ -26,26 +26,15 @@ func NewDecoder(r io.Reader) *Decoder {
 
 // Decode reads CBOR value and decodes it into the value pointed to by v.
 func (dec *Decoder) Decode(v interface{}) error {
-	if len(dec.buf) == dec.off {
-		if n, err := dec.read(); n == 0 {
-			return err
-		}
-	}
 
 	dec.d.reset(dec.buf[dec.off:])
 	err := dec.d.value(v)
+	if err != nil {
+		return err
+	}
+
 	dec.off += dec.d.off
 	dec.bytesRead += dec.d.off
-	if err != nil {
-		if err != io.ErrUnexpectedEOF {
-			return err
-		}
-		// Need to read more data.
-		if n, e := dec.read(); n == 0 {
-			return e
-		}
-		return dec.Decode(v)
-	}
 	return nil
 }
 
@@ -72,6 +61,26 @@ func (dec *Decoder) read() (int, error) {
 	n, err := dec.r.Read(dec.buf[len(dec.buf):cap(dec.buf)])
 	dec.buf = dec.buf[0 : len(dec.buf)+n]
 	return n, err
+}
+
+func (dec *Decoder) readAll() (int, error) {
+	b := make([]byte, 0, 10<<20)
+	for {
+		if len(b) == cap(b) {
+			// Add more capacity (let append pick how much).
+			b = append(b, 0)[:len(b)]
+		}
+		n, err := dec.r.Read(b[len(b):cap(b)])
+		b = b[:len(b)+n]
+		if err != nil {
+			if err != io.EOF {
+				return len(b), err
+			}
+			break
+		}
+	}
+	dec.buf = b
+	return len(b), nil
 }
 
 func (dec *Decoder) overwriteBuf(newBuf []byte) {

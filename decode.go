@@ -508,7 +508,9 @@ func (dm *decMode) Valid(data []byte) error {
 
 // NewDecoder returns a new decoder that reads from r using dm DecMode.
 func (dm *decMode) NewDecoder(r io.Reader) *Decoder {
-	return &Decoder{r: r, d: decoder{dm: dm}}
+	d := &Decoder{r: r, d: decoder{dm: dm}}
+	d.readAll()
+	return d
 }
 
 type decoder struct {
@@ -529,12 +531,12 @@ func (d *decoder) value(v interface{}) error {
 		return &InvalidUnmarshalError{"cbor: Unmarshal(nil " + rv.Type().String() + ")"}
 	}
 
-	off := d.off // Save offset before data validation
-	err := d.valid()
-	d.off = off // Restore offset
-	if err != nil {
-		return err
-	}
+	//off := d.off // Save offset before data validation
+	//err := d.valid()
+	//d.off = off // Restore offset
+	//if err != nil {
+	//	return err
+	//}
 
 	rv = rv.Elem()
 	return d.parseToValue(rv, getTypeInfo(rv.Type()))
